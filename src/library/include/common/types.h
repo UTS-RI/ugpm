@@ -167,15 +167,6 @@ namespace celib{
             }
     };
 
-    // Data structure for the IMU
-    struct ImuRosbagOption
-    {
-        std::string file_path;
-        std::string topic_name;
-        bool timestamp_interpolation;
-
-    };
-
 
 
     typedef Eigen::Matrix<double, 3, 3> Mat3;
