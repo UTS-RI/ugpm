@@ -376,7 +376,7 @@ namespace celib
 
             d_acc_d_bf[i]->resize(imu_data_.acc.size(),3);
             d_acc_d_bw[i]->resize(imu_data_.acc.size(),3);
-            d_acc_d_dt[i]->resize(imu_data_.acc.size(),3);
+            d_acc_d_dt[i]->resize(imu_data_.acc.size());
         }
 
         for(int i = 0; i < imu_data_.acc.size(); ++i)
@@ -386,9 +386,9 @@ namespace celib
             temp_acc = temp_acc - bias_prior;
 
 
-            d_acc_d_bf[0]->row(i) = preint[i].delta_R.row(0).transpose();
-            d_acc_d_bf[1]->row(i) = preint[i].delta_R.row(1).transpose();
-            d_acc_d_bf[2]->row(i) = preint[i].delta_R.row(2).transpose();
+            d_acc_d_bf[0]->row(i) = preint[i].delta_R.row(0);
+            d_acc_d_bf[1]->row(i) = preint[i].delta_R.row(1);
+            d_acc_d_bf[2]->row(i) = preint[i].delta_R.row(2);
 
 
 
@@ -413,9 +413,9 @@ namespace celib
             temp_acc = preint[i].delta_R * temp_acc;
             Vec3 acc_rot_dt = delta_R_dt_start.transpose()*temp_acc;
             Vec3 d_acc_d_t = (acc_rot_dt - temp_acc)/kNumDtJacobianDelta;
-            d_acc_d_dt[0]->coeffRef(i) = d_acc_d_t(0);
-            d_acc_d_dt[1]->coeffRef(i) = d_acc_d_t(1);
-            d_acc_d_dt[2]->coeffRef(i) = d_acc_d_t(2);
+            (*(d_acc_d_dt[0]))[i] = d_acc_d_t(0);
+            (*(d_acc_d_dt[1]))[i] = d_acc_d_t(1);
+            (*(d_acc_d_dt[2]))[i] = d_acc_d_t(2);
             
 
 
@@ -508,7 +508,7 @@ namespace celib
                                 && (time.get(i) <= imu_data_.acc[ptr+1].t) ){
                             loop = false;
                         }else{
-                            if( ptr < (imu_data_.acc.size() - 1) ){
+                            if( ptr < (imu_data_.acc.size() - 2) ){
 
                                 d_p_backup = d_p_backup +  d_v_backup*(t_1 - t_0)
                                     + ((t_0 - t_1)*(t_0 - t_1)*(2.0*d_0 + d_1)/6.0);
@@ -603,13 +603,13 @@ namespace celib
         while(time.get(start_index) < start_t_){
             start_index++;
             if(start_index == time.size()){
-                throw "LPM Partial: the start_time is not in the query domain";
+                throw std::range_error("LPM Partial: the start_time is not in the query domain");
             }
         }
         while(acc_data[data_ptr+1].t < start_t_){
             data_ptr++;
             if(data_ptr == (acc_data.size()-1)){
-                throw "LPM Partial: the start_time is not in the data domain";
+                throw std::range_error("LPM Partial: the start_time is not in the data domain");
             }
         }
     
