@@ -141,8 +141,6 @@ namespace celib
                 if(rot_integrator_) delete rot_integrator_;
             }
 
-            // Compute the preintegrated measurement for a given timestamp
-            PreintMeas get(const double t);
             // Get the preintegrated measurement as per indexed in the given inference times of the constructor
             PreintMeas get(const int index_1, const int index_2);
 
