@@ -184,6 +184,7 @@ namespace celib
 
 
             int nb_chuncks = (int) std::ceil((last_t - start_t)/opt.quantum);
+            if(nb_chuncks == 0) nb_chuncks = 1;
 
             // Create pointers for the inference times
             std::vector<int> pointers(infer_t.size(),0);
