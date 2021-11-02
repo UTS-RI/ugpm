@@ -109,7 +109,7 @@ For the rest the __UGPMs__ per-chunk would be my method of choice (excellent acc
 
 In short, the overall use of the `ImuPreintegration` object corresponds to the instantiation of the object with the constructor `celib::ImuPreintegration(data, start_t, t, preint_opt, prior)` with:
 
-- `data`: an `ImuData` structure defined in `library/include/common/types.h` (basically just to vectors of accelerometer and gyroscope data).
+- `data`: an `ImuData` structure defined in `library/include/common/types.h` (basically just two vectors of accelerometer and gyroscope data).
 - `start_t`: a `double` that represents the timestamp of the beginning of the integration window
 - `t`: a `std::vector<std::vector<double> >` that contains the timestamps at which you want to infer the preintegrated measurements. Each of the vectors in `t` needs to be of increasing order (the vector of vector thing allows for passing multiple series of timestamp to ease the data management in the case of multi-modal systems).
 - `preint_opt`: a `PreintOption` structure that specifies the parameters of the preintegration method. Its definition can be found in `library/include/imu_preintegration/preintegration.h` 
