@@ -4,6 +4,8 @@ author: le.gentil.cedric@gmail.com (Cedric)
 
 ## and the Linear Preintegrated Measurements (LPMs)
 
+__THIS VERSION IS ASSOCIATED TO THE RSS'21 IMPLEMENTATION, A NEW VERSION WILL BE RELEASED SOON IN THIS REPOSITORY (this RSS version will be moved to a branch of its own)__
+
 This repository provides the C++ implementation of the preintegration methods presented in our RSS'21 paper titled [_Continuous Integration over SO(3) for IMU Preintegration_](http://www.roboticsproceedings.org/rss17/p078.pdf) (with video [here](https://youtu.be/4erKqw6S5o0), and poster [there](https://raw.githubusercontent.com/UTS-CAS/ugpm/main/ugpm_poster.pdf)). If you are using that code for any purpose, please cite the corresponding work as explained at the end of this page.
 
 In short preintegration is a way to combine IMU data into pseudo measurements called _preintegrated measurements_. This is especially useful in the context of optimisation-based state estimation.
