@@ -18,7 +18,7 @@ This repository contains the implementation of the _UGPMs_ and _LPMs_ (extended 
 
 This repository depends on *cmake* and *g++* for the compilation.
 
-Libraries needed (boost doesn't need all, but shouldn't harm to have it all :) ):
+Libraries needed (boost is only needed for the example code, not in the preintegration code):
 ```
 sudo apt-get install libeigen3-dev
 sudo apt-get install libboost-all-dev
