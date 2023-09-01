@@ -1,4 +1,0 @@
---- vi16 -------------------------------------
-depth=1
-ModeAutoDecoder=Mode1D
-* Mode1D ->  'unittest-output/vi16-Mode1D.bin' binary format='%int16' record=(4) 
