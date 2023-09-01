@@ -6,7 +6,7 @@ author: le.gentil.cedric@gmail.com (Cedric)
 
 __THIS VERSION IS ASSOCIATED TO OUR IJRR'23 PAPER__, if you are after the RSS'21 implementation, please check the `rss` branch
 
-This repository provides the C++ implementation of the preintegration methods presented in our IJRR'23 paper titled [_Continuous Latent State Preintegration for Inertial-Aided Systems_](LINK TO BE ADDED SOON). If you are using that code for any purpose, please cite the corresponding work as explained at the end of this page.
+This repository provides the C++ implementation of the preintegration methods presented in our IJRR'23 paper titled [_Continuous Latent State Preintegration for Inertial-Aided Systems_](https://doi.org/10.1177/02783649231199537). If you are using that code for any purpose, please cite the corresponding work as explained at the end of this page.
 
 In short preintegration is a way to combine IMU data into pseudo measurements called _preintegrated measurements_. This is especially useful in the context of optimisation-based state estimation.
 
@@ -127,14 +127,15 @@ Not all the features implemented have been fully tested, bugs are still possible
 
 ### Citing
 
-The _UGPMs_ and _LPMs_ have both been introduced in [_Continuous Latent State Preintegration for Inertial-Aided Systems_](LINK TO BE ADDED SOON)
+The _UGPMs_ and _LPMs_ have both been introduced in [_Continuous Latent State Preintegration for Inertial-Aided Systems_](https://doi.org/10.1177/02783649231199537)
 
 ```bibtex
 @article{LeGentil2023,
 	title={{Continuous Latent State Preintegration for Inertial-Aided Systems}},
 	author={{Le Gentil}, Cedric and {Vidal-Calleja}, Teresa},
-	journal={International Journal of Robotics Research},
+	journal={The International Journal of Robotics Research},
 	year={2023},
+	doi={10.1177/02783649231199537},
 	publisher={Sage Publications}
 }
 ```
