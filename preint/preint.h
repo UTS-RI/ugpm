@@ -25,7 +25,7 @@ namespace ugpm
 
         public:
             // Constructor given IMU data and inference timestamps
-            ImuPreintegration(ImuData& imu_data,
+            ImuPreintegration(const ImuData& imu_data,
                     const double start_t,
                     const std::vector<std::vector<double> >& infer_t,
                     const PreintOption opt,
@@ -34,7 +34,7 @@ namespace ugpm
                     const int overlap = kOverlap);
 
             // Constructor overloading given only a vector of timestamps
-            ImuPreintegration(ImuData& imu_data,
+            ImuPreintegration(const ImuData& imu_data,
                     const double start_t,
                     const std::vector<double>& infer_t,
                     const PreintOption opt,
@@ -43,7 +43,7 @@ namespace ugpm
                     const int overlap = kOverlap);
 
             // Constructor overloading given only a one timestamp
-            ImuPreintegration(ImuData& imu_data,
+            ImuPreintegration(const ImuData& imu_data,
                     const double start_t,
                     const double infer_t,
                     const PreintOption opt,
@@ -1566,7 +1566,7 @@ namespace ugpm
 
 
             // Constructor given IMU data and inference timestamps
-    ImuPreintegration::ImuPreintegration(ImuData& imu_data,
+    ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
                     const double start_t,
                     const std::vector<std::vector<double> >& infer_t,
                     const PreintOption opt,
@@ -1575,10 +1575,9 @@ namespace ugpm
                     const int overlap)
                         :imu_data_(imu_data)
     {
-        if(!imu_data.checkFrequency())
+        if(!imu_data_.checkFrequency())
         {
             std::cout << "WARNING: There might be an issue with the IMU data timestamps. This is not handled in the current version (can lead to undefined behavior or alter the performance of the preintegration)." << std::endl;
-            exit(1);
         }
 
         // If not by chunks
@@ -1606,7 +1605,7 @@ namespace ugpm
 
 
             
-                Se3Integrator se3_int(imu_data, start_t, prior, duration, opt_.state_freq, overlap, opt_.correlate);
+                Se3Integrator se3_int(imu_data_, start_t, prior, duration, opt_.state_freq, overlap, opt_.correlate);
                 preint_.resize(infer_t.size());
                 for(int i = 0; i < infer_t.size(); ++i)
                 {
@@ -1619,7 +1618,7 @@ namespace ugpm
             }
             else
             {
-                IterativeIntegrator integrator(imu_data, start_t, prior, infer_t, opt_.min_freq, false, false);
+                IterativeIntegrator integrator(imu_data_, start_t, prior, infer_t, opt_.min_freq, false, false);
 
 
                 preint_.resize(infer_t.size());
@@ -1651,8 +1650,8 @@ namespace ugpm
 
 
             // Get the overlap value (check diff between )
-            double acc_period = (imu_data.acc.back().t - imu_data.acc[0].t) / (imu_data.acc.size()-1);
-            double gyr_period = (imu_data.gyr.back().t - imu_data.gyr[0].t) / (imu_data.gyr.size()-1);
+            double acc_period = (imu_data_.acc.back().t - imu_data_.acc[0].t) / (imu_data_.acc.size()-1);
+            double gyr_period = (imu_data_.gyr.back().t - imu_data_.gyr[0].t) / (imu_data_.gyr.size()-1);
             double imu_period = std::max(acc_period, gyr_period);
             double t_overlap = imu_period * overlap;
             
@@ -1702,7 +1701,7 @@ namespace ugpm
                     }
 
                 }
-                auto temp_imu_data = imu_data.get(chunck_start_t-t_overlap, chunck_end_t+t_overlap);
+                auto temp_imu_data = imu_data_.get(chunck_start_t-t_overlap, chunck_end_t+t_overlap);
                 auto temp_opt = opt;
                 temp_opt.quantum = -1;
                 ImuPreintegration preint(
@@ -1756,7 +1755,7 @@ namespace ugpm
     }
 
     // Constructor overloading given only a vector of timestamps
-    ImuPreintegration::ImuPreintegration(ImuData& imu_data,
+    ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
             const double start_t,
             const std::vector<double>& infer_t,
             const PreintOption opt,
@@ -1770,7 +1769,7 @@ namespace ugpm
     }
 
     // Constructor overloading given only a one timestamp
-    ImuPreintegration::ImuPreintegration(ImuData& imu_data,
+    ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
             const double start_t,
             const double infer_t,
             const PreintOption opt,

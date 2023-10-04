@@ -69,7 +69,7 @@ namespace ugpm
     struct ImuData
     {
         // Offset in second for every sample timestamps
-        double t_offset;
+        double t_offset = 0.0;
 
         // Vectors of samples
         std::vector<ImuSample> acc;
