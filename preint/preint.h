@@ -68,7 +68,7 @@ namespace ugpm
             ImuData imu_data_;
 
             double start_t_;
-            int start_index_;
+            size_t start_index_;
             PreintOption opt_;
             PreintPrior prior_;
 
@@ -182,7 +182,7 @@ namespace ugpm
                 start_t_ = start_time;
                 bare_ = bare;
 
-                int nb_infer_vec = time.size();
+                size_t nb_infer_vec = time.size();
                 
                 // Fill the private structures and other variables
                 nb_gyr_ = imu_data.gyr.size();
@@ -242,7 +242,7 @@ namespace ugpm
                 std::vector<bool> interest_t;
                 {
                     std::vector<std::vector<bool> > temp;
-                    for(int i = 0; i < nb_infer_vec; ++i) temp.push_back(std::vector<bool>(infer_t[i].size(), true));
+                    for(size_t i = 0; i < nb_infer_vec; ++i) temp.push_back(std::vector<bool>(infer_t[i].size(), true));
                     temp.push_back(std::vector<bool>(infer_t[nb_infer_vec].size(), true));
                     temp.push_back(std::vector<bool>(infer_t[nb_infer_vec+1].size(), true));
                     if( (nb_infer_vec+2) < infer_t.size()) temp.push_back(std::vector<bool>(infer_t[nb_infer_vec+2].size(), false));
@@ -254,7 +254,7 @@ namespace ugpm
                 std::vector<PreintMeas> preint = rotPreint(t, interest_t);
 
                 // Demux the preintegrated mesurements
-                for(int i = 0; i < nb_infer_vec; ++i)
+                for(size_t i = 0; i < nb_infer_vec; ++i)
                 {
                     preint_.push_back(t.getVector(preint, i));
 
@@ -307,7 +307,7 @@ namespace ugpm
             std::vector<std::vector<PreintMeas> > preint_;
             bool bare_;
 
-            int start_index_;
+            size_t start_index_;
 
             int nb_gyr_;
             int nb_acc_;
@@ -354,7 +354,7 @@ namespace ugpm
                     std::vector<std::vector<Mat3, Eigen::aligned_allocator<Mat3>> > d_R_d_bw(3, std::vector<Mat3, Eigen::aligned_allocator<Mat3> >(output.size()));
                     
                     rotIterativeIntegration(inter_w_shifted, t, d_R_dt);
-                    for(int j = 0; j < t.size(); ++j)
+                    for(size_t j = 0; j < t.size(); ++j)
                     {
                         if(interest_t[j])
                         {
@@ -369,7 +369,7 @@ namespace ugpm
                         offset(i) = kNumGyrBiasJacobianDelta;
                         temp_data.colwise() += offset;
                         rotIterativeIntegration(temp_data, t, d_R_d_bw[i]);
-                        for(int j = 0; j < t.size(); ++j)
+                        for(size_t j = 0; j < t.size(); ++j)
                         {
                             if(interest_t[j])
                             {
@@ -382,7 +382,7 @@ namespace ugpm
                 {
                     std::vector<Mat3, Eigen::aligned_allocator<Mat3> > temp_R(t.size());
                     rotIterativeIntegration(inter_w, t, temp_R);
-                    for(int i = 0; i < t.size(); ++i)
+                    for(size_t i = 0; i < t.size(); ++i)
                     {
                         output[i].delta_R = temp_R[i];
                     }
@@ -417,7 +417,7 @@ namespace ugpm
                 output[0].dt_sq_half = 0.5*(output[0].dt)*(output[0].dt);
 
                 
-                for(int i = 0; i < (t.size() - 1); ++i)
+                for(size_t i = 0; i < (t.size() - 1); ++i)
                 {
                     // Prepare some variables for convenience sake
                     double dt = t.get(i+1)-t.get(i);
@@ -475,7 +475,7 @@ namespace ugpm
                     // Reproject the preintegrated measurements from in the starting frame
                     if( (i+1) == start_index_)
                     {
-                        for(int j = 0; j < (i+1); ++j)
+                        for(size_t j = 0; j < (i+1); ++j)
                         {                        
                             output[j].delta_R = rot_mat.transpose()*output[j].delta_R;
                         }
@@ -488,11 +488,10 @@ namespace ugpm
             void rotIterativeIntegration(const Eigen::MatrixXd& w, const SortIndexTracker2<double>& t, std::vector<Eigen::Matrix3d, Eigen::aligned_allocator<Eigen::Matrix3d> >& output)
             {
                 Mat3 rot_mat = Mat3::Identity();
-                Mat9 cov = Mat9::Zero();
 
                 output[0] = rot_mat;
                 
-                for(int i = 0; i < (t.size() - 1); ++i)
+                for(size_t i = 0; i < (t.size() - 1); ++i)
                 {
                     // Prepare some variables for convenience sake
                     double dt = t.get(i+1)-t.get(i);
@@ -507,7 +506,7 @@ namespace ugpm
                     // Reproject the preintegrated measurements from in the starting frame
                     if( (i+1) == start_index_)
                     {
-                        for(int j = 0; j < (i+1); ++j)
+                        for(size_t j = 0; j < (i+1); ++j)
                         {                        
                             output[j] = rot_mat.transpose()*output[j];
                         }
@@ -551,7 +550,7 @@ namespace ugpm
                 int data_ptr = 0;
 
                 // For each of the query points of the timeline
-                int start_index = 0;
+                size_t start_index = 0;
                 while(time.get(start_index) < start_t_){
                     start_index++;
                     if(start_index == time.size()){
@@ -566,9 +565,6 @@ namespace ugpm
                 }
 
 
-
-                double data_ptr_save = data_ptr;
-                double start_index_save = start_index;
 
                 for(int axis = 0; axis < 3; ++axis)
                 {
@@ -597,7 +593,7 @@ namespace ugpm
                     Vec3 d_p_d_bw_backup = Vec3::Zero();
 
 
-                    for(int i = start_index; i < time.size(); ++i){
+                    for(size_t i = start_index; i < time.size(); ++i){
                         // Move the data pointer so that the query time is in between two data points
                         if( time.get(i) > acc_time_[0] ){
                             bool loop = true;
@@ -695,7 +691,7 @@ namespace ugpm
                 int data_ptr = 0;
 
                 // For each of the query points of the timeline
-                int start_index = 0;
+                size_t start_index = 0;
                 while(time.get(start_index) < start_t_){
                     start_index++;
                     if(start_index == time.size()){
@@ -724,7 +720,7 @@ namespace ugpm
                     double d_v_backup = 0;
                     double d_p_backup = 0;
 
-                    for(int i = start_index; i < time.size(); ++i){
+                    for(size_t i = start_index; i < time.size(); ++i){
                         // Move the data pointer so that the query time is in between two data points
                         if( time.get(i) > acc_time_[0] ){
                             bool loop = true;
@@ -804,7 +800,6 @@ namespace ugpm
                 nb_state_ = std::ceil(window_duration*state_freq_)+(2*nb_overlap_);
                 state_time_.resize(nb_state_);
                 double temp_start_infer_t = start_t_ - (((double)nb_overlap_)/state_freq_);
-                double temp_infer_duration = (nb_state_ - 1)/state_freq_;
                 std::vector<double> t_vect(nb_state_);
                 std::vector<double> t_vect_dt(nb_state_);
                 for(int i = 0; i < nb_state_; ++i)
@@ -978,7 +973,7 @@ namespace ugpm
                 ceres::Solver::Summary summary;
                 ceres::Solve(solver_opt, &optimisation, &summary);
 
-                auto acc_residual_id = optimisation.AddResidualBlock(acc_cost_fun, nullptr, &(state_d_r_(0,0)), &(state_d_r_(0,1)), &(state_d_r_(0,2)), &(state_acc_(0,0)), &(state_acc_(0,1)), &(state_acc_(0,2)));
+                optimisation.AddResidualBlock(acc_cost_fun, nullptr, &(state_d_r_(0,0)), &(state_d_r_(0,1)), &(state_d_r_(0,2)), &(state_acc_(0,0)), &(state_acc_(0,1)), &(state_acc_(0,2)));
                 for(int i = 3; i < 6; ++i)
                 {
                     GpNormCostFunction* cost_fun = new GpNormCostFunction(KK_inv_[i], acc_var[i-3]);
@@ -1066,7 +1061,6 @@ namespace ugpm
                     d_acc_bf_[1].row(i) = temp_R.row(1);
                     d_acc_bf_[2].row(i) = temp_R.row(2);
 
-                    Vec3 temp_acc = temp_R.transpose()*(state_acc_.row(i).transpose() + mean_acc);
                     Mat3 temp_d_r_bw;
                     temp_d_r_bw.row(0) = d_state_r_bw[0].row(i);
                     temp_d_r_bw.row(1) = d_state_r_bw[1].row(i);
@@ -1206,11 +1200,11 @@ namespace ugpm
 
         private:
 
+            std::vector<GPSeHyper> hyper_;
             bool correlate_;
             double state_freq_;
             int nb_overlap_;
 
-            std::vector<GPSeHyper> hyper_;
             MatX state_d_r_;
             MatX state_acc_;
 
@@ -1320,8 +1314,8 @@ namespace ugpm
                 // Prepare for the timeshift diff
                 {
                     ImuData temp_imu_data = imu_data;
-                    for(int i = 0; i < temp_imu_data.gyr.size(); ++i) temp_imu_data.gyr[i].t -= kNumDtJacobianDelta;
-                    for(int i = 0; i < temp_imu_data.acc.size(); ++i) temp_imu_data.acc[i].t -= kNumDtJacobianDelta;
+                    for(size_t i = 0; i < temp_imu_data.gyr.size(); ++i) temp_imu_data.gyr[i].t -= kNumDtJacobianDelta;
+                    for(size_t i = 0; i < temp_imu_data.acc.size(); ++i) temp_imu_data.acc[i].t -= kNumDtJacobianDelta;
 
                     d_r_dt_local_shift_.resize(3, nb_state_);
                     delta_r_time_.resize(3,nb_state_);
@@ -1388,7 +1382,7 @@ namespace ugpm
                     for(int axis = 0; axis < 3; ++axis)
                     {
                         ImuData temp_imu_data = imu_data;
-                        for(int i = 0; i < temp_imu_data.gyr.size(); ++i) temp_imu_data.gyr[i].data[axis] += kNumGyrBiasJacobianDelta;
+                        for(size_t i = 0; i < temp_imu_data.gyr.size(); ++i) temp_imu_data.gyr[i].data[axis] += kNumGyrBiasJacobianDelta;
 
 
                         PreintOption preint_opt;
@@ -1566,7 +1560,7 @@ namespace ugpm
 
 
             // Constructor given IMU data and inference timestamps
-    ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
+    inline ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
                     const double start_t,
                     const std::vector<std::vector<double> >& infer_t,
                     const PreintOption opt,
@@ -1587,14 +1581,13 @@ namespace ugpm
             prior_ = prior;
             start_t_ = start_t;
 
-            int nb_infer_vec = infer_t.size();
 
             if(opt_.type == UGPM)
             {
 
                 // Get the maximum timestamp of infering points
                 std::vector<double> temp_max;
-                for(int i = 0; i < infer_t.size(); ++i)
+                for(size_t i = 0; i < infer_t.size(); ++i)
                 {
                     if(infer_t[i].size() > 0)
                     {
@@ -1607,10 +1600,10 @@ namespace ugpm
             
                 Se3Integrator se3_int(imu_data_, start_t, prior, duration, opt_.state_freq, overlap, opt_.correlate);
                 preint_.resize(infer_t.size());
-                for(int i = 0; i < infer_t.size(); ++i)
+                for(size_t i = 0; i < infer_t.size(); ++i)
                 {
                     preint_[i].reserve(infer_t[i].size());
-                    for(int j = 0; j < infer_t[i].size(); ++j)
+                    for(size_t j = 0; j < infer_t[i].size(); ++j)
                     {
                         preint_[i].push_back(se3_int.get(infer_t[i][j]));
                     }
@@ -1622,10 +1615,10 @@ namespace ugpm
 
 
                 preint_.resize(infer_t.size());
-                for(int i = 0; i < infer_t.size(); ++i)
+                for(size_t i = 0; i < infer_t.size(); ++i)
                 {
                     preint_[i].reserve(infer_t[i].size());
-                    for(int j = 0; j < infer_t[i].size(); ++j)
+                    for(size_t j = 0; j < infer_t[i].size(); ++j)
                     {
                         preint_[i].push_back(integrator.get(i,j));
                     }
@@ -1661,7 +1654,7 @@ namespace ugpm
             if(nb_chuncks == 0) nb_chuncks = 1;
 
             // Create pointers for the inference times
-            std::vector<int> pointers(infer_t.size(),0);
+            std::vector<size_t> pointers(infer_t.size(),0);
             PreintMeas prev_chunck_preint;
             preint_.resize(infer_t.size());
             for(int i = 0; i < nb_chuncks; ++i)
@@ -1677,7 +1670,7 @@ namespace ugpm
                     temp_temp_t.push_back(chunck_end_t);
                     temp_infer_t.push_back(temp_temp_t);
                 }
-                for(int j = 0; j < infer_t.size(); ++j)
+                for(size_t j = 0; j < infer_t.size(); ++j)
                 {
                     bool loop = true;
                     while(loop)
@@ -1719,9 +1712,9 @@ namespace ugpm
                     {
                         prev_chunck_preint = preint.get(infer_t.size(), 0, 0.0, 0.0);
                     }
-                    for(int j = 0; j < infer_t.size(); ++j)
+                    for(size_t j = 0; j < infer_t.size(); ++j)
                     {
-                        for(int h = 0; h < temp_infer_t[j].size(); ++h)
+                        for(size_t h = 0; h < temp_infer_t[j].size(); ++h)
                         {
                             preint_[j].push_back(preint.get(j,h, 0.0, 0.0));
                         }
@@ -1730,9 +1723,9 @@ namespace ugpm
                 else
                 {
 
-                    for(int j = 0; j < infer_t.size(); ++j)
+                    for(size_t j = 0; j < infer_t.size(); ++j)
                     {
-                        for(int h = 0; h < temp_infer_t[j].size(); ++h)
+                        for(size_t h = 0; h < temp_infer_t[j].size(); ++h)
                         {
                             PreintMeas temp_preint = combinePreints(prev_chunck_preint, preint.get(j,h, 0.0, 0.0));
 
@@ -1755,7 +1748,7 @@ namespace ugpm
     }
 
     // Constructor overloading given only a vector of timestamps
-    ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
+    inline ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
             const double start_t,
             const std::vector<double>& infer_t,
             const PreintOption opt,
@@ -1769,7 +1762,7 @@ namespace ugpm
     }
 
     // Constructor overloading given only a one timestamp
-    ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
+    inline ImuPreintegration::ImuPreintegration(const ImuData& imu_data,
             const double start_t,
             const double infer_t,
             const PreintOption opt,
@@ -1783,12 +1776,12 @@ namespace ugpm
 
 
     // Get the preintegrated measurement as per indexed in the given inference times of the constructor
-    PreintMeas ImuPreintegration::get(const int index_1, const int index_2, double acc_bias_std, double gyr_bias_std)
+    inline PreintMeas ImuPreintegration::get(const int index_1, const int index_2, double acc_bias_std, double gyr_bias_std)
     {
         if ((index_1 >= 0) && 
             (index_2 >= 0) &&
-            (index_1 < preint_.size()) &&
-            (index_2 < preint_[index_1].size()))
+            (index_1 < (int)(preint_.size())) &&
+            (index_2 < (int)(preint_[index_1].size())))
         {
             // To be checked
             PreintMeas out = preint_[index_1][index_2];
@@ -1819,7 +1812,7 @@ namespace ugpm
 
 
     // Overload of the get function when vector in the constructor
-    PreintMeas ImuPreintegration::get(const int index_1, double acc_bias_std, double gyr_bias_std)
+    inline PreintMeas ImuPreintegration::get(const int index_1, double acc_bias_std, double gyr_bias_std)
     {
         if(query_type_ == kVec) return get(0, index_1, acc_bias_std, gyr_bias_std);
         else throw std::range_error("ImuPreintegration::get: The type of query does not math the type of constructor");
@@ -1827,7 +1820,7 @@ namespace ugpm
 
 
     // Overload of the get function when single timestamp in the constructor
-    PreintMeas ImuPreintegration::get(double acc_bias_std, double gyr_bias_std)
+    inline PreintMeas ImuPreintegration::get(double acc_bias_std, double gyr_bias_std)
     {
         if(query_type_ == kSingle) return get(0, 0, acc_bias_std, gyr_bias_std);
         else throw std::range_error("ImuPreintegration::get: The type of query does not math the type of constructor");

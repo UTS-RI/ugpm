@@ -90,13 +90,23 @@ namespace ugpm
         {
         };
 
+        ImuData& operator=(const ImuData& imu_data)
+        {
+            t_offset = imu_data.t_offset;
+            acc = imu_data.acc;
+            gyr = imu_data.gyr;
+            acc_var = imu_data.acc_var;
+            gyr_var = imu_data.gyr_var;
+            return *this;
+        }
+
         bool checkFrequency()
         {
             bool output = true;
             // Get min and max delta t for both the acc and gyr data
             double min_acc_dt = 1e10;
             double max_acc_dt = -1e10;
-            for(int i = 0; i < acc.size()-1; ++i)
+            for(size_t i = 0; i < acc.size()-1; ++i)
             {
                 double dt = acc[i+1].t - acc[i].t;
                 if(dt < min_acc_dt) min_acc_dt = dt;
@@ -104,7 +114,7 @@ namespace ugpm
             }
             double min_gyr_dt = 1e10;
             double max_gyr_dt = -1e10;
-            for(int i = 0; i < gyr.size()-1; ++i)
+            for(size_t i = 0; i < gyr.size()-1; ++i)
             {
                 double dt = gyr[i+1].t - gyr[i].t;
                 if(dt < min_gyr_dt) min_gyr_dt = dt;
@@ -187,7 +197,7 @@ namespace ugpm
                 }
 
                 // TODO: could be optimised (keeping an internal pointer for repetitive calls instead for looping through all the data)
-                int i = 0;
+                size_t i = 0;
                 bool loop = true;
                 while(loop)
                 {
@@ -385,10 +395,10 @@ namespace ugpm
             {
                 std::vector<T> temp_data;
                 std::vector<std::pair<int, int> > temp_map;
-                for(int i = 0; i < data_->size(); ++i)
+                for(size_t i = 0; i < data_->size(); ++i)
                 {
                     temp_data.insert(temp_data.end(), data_->at(i).begin(), data_->at(i).end());
-                    for(int j = 0; j < data_->at(i).size(); ++j)
+                    for(size_t j = 0; j < data_->at(i).size(); ++j)
                     {
                         temp_map.push_back(std::make_pair(i,j));
                     }
@@ -396,7 +406,7 @@ namespace ugpm
                 
                 std::vector<int> sorted_indexes = sortIndexes(temp_data);
 
-                for(int i = 0; i < sorted_indexes.size(); ++i)
+                for(size_t i = 0; i < sorted_indexes.size(); ++i)
                 {
                     index_map_.push_back(temp_map[sorted_indexes[i]]);
                 }
@@ -415,9 +425,9 @@ namespace ugpm
             std::vector<int> getIndexVector(const int vec_i) const
             {
                 std::vector<int> output;
-                for(int i = 0; i < index_map_.size(); ++i)
+                for(size_t i = 0; i < index_map_.size(); ++i)
                 {
-                    if(index_map_[i].first == vec_i) output.push_back(i);
+                    if(index_map_[i].first == (size_t)vec_i) output.push_back(i);
                 }
                 return output;
             }
@@ -426,18 +436,18 @@ namespace ugpm
             std::vector<U> getVector(const std::vector<U>& data, const int vec_i) const
             {
                 std::vector<U> output;
-                for(int i = 0; i < index_map_.size(); ++i)
+                for(size_t i = 0; i < index_map_.size(); ++i)
                 {
-                    if(index_map_[i].first == vec_i) output.push_back(data[i]);
+                    if(index_map_[i].first == (size_t)(vec_i)) output.push_back(data[i]);
                 }
                 return output;
             }
 
 
             // Get the 1D index corresponding to the 2D indices
-            int getIndex(const int i, const int j) const
+            size_t getIndex(const size_t i, const size_t j) const
             {
-                for(int k = 0; k < index_map_.size(); ++k)
+                for(size_t k = 0; k < index_map_.size(); ++k)
                 {
                     if((index_map_[k].first == i) && (index_map_[k].second == j))
                     {
@@ -451,9 +461,9 @@ namespace ugpm
             template <class U>
             U get(const int i, const int j, const std::vector<U>& data) const
             {
-                for(int k = 0; k < index_map_.size(); ++k)
+                for(size_t k = 0; k < index_map_.size(); ++k)
                 {
-                    if((index_map_[k].first == i) && (index_map_[k].second == j))
+                    if(((int)(index_map_[k].first) == i) && ((int)(index_map_[k].second) == j))
                     {
                         return data[k];
                     }
@@ -467,7 +477,7 @@ namespace ugpm
             std::vector<U> applySort(const std::vector<std::vector<U> >& data) const
             {
                 std::vector<U> output;
-                for(int k = 0; k < index_map_.size(); ++k)
+                for(size_t k = 0; k < index_map_.size(); ++k)
                 {
                     output.push_back(data[index_map_[k].first][index_map_[k].second]);
                 }
@@ -480,7 +490,7 @@ namespace ugpm
                 return (*data_)[index_map_.back().first][index_map_.back().second];
             }
 
-            int size() const
+            size_t size() const
             {
                 return index_map_.size();
             }
@@ -488,7 +498,7 @@ namespace ugpm
             T getSmallestGap()
             {
                 T diff = get(1) - get(0);
-                for(int i = 1; i < (size()-1); ++i)
+                for(size_t i = 1; i < (size()-1); ++i)
                 {
                     diff = get(i+1) - get(i);
                 }
@@ -498,7 +508,7 @@ namespace ugpm
         private:
             std::vector<std::vector<T> >* data_;
 
-            std::vector<std::pair<int, int> > index_map_;
+            std::vector<std::pair<size_t, size_t> > index_map_;
             
 
     };
